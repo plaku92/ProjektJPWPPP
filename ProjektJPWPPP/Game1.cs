@@ -23,7 +23,7 @@ namespace ProjektJPWPPP
         KeyboardState keyboardState = Keyboard.GetState();
         KeyboardState previousKeyboardState;
         Color tlo;
-
+        int TESTGITHUB;
         
 
         private GraphicsDeviceManager _graphics;
