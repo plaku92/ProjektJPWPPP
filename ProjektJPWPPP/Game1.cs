@@ -23,8 +23,10 @@ namespace ProjektJPWPPP
         KeyboardState keyboardState = Keyboard.GetState();
         KeyboardState previousKeyboardState;
         Color tlo;
-        
-        
+
+        private float _timer;     // Timer 
+        private bool _timerRunning;
+
 
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
@@ -99,6 +101,8 @@ namespace ProjektJPWPPP
             previousKeyboardState = keyboardState;
             keyboardState = Keyboard.GetState();
 
+
+
             wynikTextbox.Update(keyboardState, previousKeyboardState);
             if (Mouse.GetState().LeftButton == ButtonState.Pressed)
             {
@@ -147,15 +151,49 @@ namespace ProjektJPWPPP
             }
             else if(_gameState == 2)
             {
+                _timerRunning = true;
                 startButton.setPosition(new Vector2(50, (_graphics.PreferredBackBufferHeight / 2) + 150));
                 startButton.setText("Atak");
                 button1.setPosition(new Vector2(50, (_graphics.PreferredBackBufferHeight / 2) + 250));
                 button1.setText("Leczenie");
                 button2.setPosition(new Vector2(1150, _graphics.PreferredBackBufferHeight-50));
                 button2.setText("Menu");
+                if (button2.IsPressed)
+                {
+                    startButton.setPosition(new Vector2((_graphics.PreferredBackBufferWidth / 2) - 81, 256));
+                    startButton.setText("Kontynuuj");
+                    button1.setPosition(new Vector2((_graphics.PreferredBackBufferWidth / 2) - 81, 512));
+                    button1.setText("Zamknij program");
+                    _gameState = 3;
+                }
+            }
+            else if(_gameState == 3)
+            {
+                _timerRunning = false;
+                if (startButton.IsPressed)
+                {
+                    _gameState=2;
+                    startButton.setPosition(new Vector2(50, (_graphics.PreferredBackBufferHeight / 2) + 150));
+                    startButton.setText("Atak");
+                    button1.setPosition(new Vector2(50, (_graphics.PreferredBackBufferHeight / 2) + 250));
+                    button1.setText("Leczenie");
+                    button2.setPosition(new Vector2(1150, _graphics.PreferredBackBufferHeight - 50));
+                    button2.setText("Menu");
+                }
+
+                if (button1.IsPressed)
+                {
+                    Exit();
+                }
             }
 
             previousMouseState = currentMouseState;
+
+            if (_timerRunning)
+            {
+                _timer += (float)gameTime.ElapsedGameTime.TotalSeconds; // Zwiekszenie timera
+            }
+
             base.Update(gameTime);
         }
 
@@ -193,8 +231,20 @@ namespace ProjektJPWPPP
                 
                 wynikTextbox.Draw(_spriteBatch);
 
+                _spriteBatch.DrawString(MessageFont, $"Czas: {_timer:F2} sekund", new Vector2((_graphics.PreferredBackBufferWidth / 2) - 300, 900), Color.Black);
 
             }
+            else if (_gameState == 3)
+            {
+                _spriteBatch.DrawString(MessageFont, "Menu", new Vector2((_graphics.PreferredBackBufferWidth / 2) - 100, 40), Color.Black);
+                startButton.Draw(_spriteBatch);
+                button1.Draw(_spriteBatch);
+                button2.Draw(_spriteBatch);
+
+
+
+            }
+
 
 
             _spriteBatch.End();
