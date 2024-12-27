@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Transactions;
 using static System.Net.Mime.MediaTypeNames;
 
 // ---------------------------------------------------PROJEKT ZROBIONY ZA POMOCĄ FRAMEWORKU MONOGAME------------------------------------
@@ -18,14 +19,15 @@ namespace ProjektJPWPPP
         Button startButton, button1, button2;
         Player player;
         Enemy enemyLevel1;
-        int _gameState, difficulty;
+        int _gameState, difficulty, number1, number2;
         Textbox wynikTextbox;
         KeyboardState keyboardState = Keyboard.GetState();
         KeyboardState previousKeyboardState;
         Color tlo;
 
         private float _timer;     // Timer 
-        private bool _timerRunning;
+        private bool _timerRunning, _czyWalka, _akcja;
+        private Random _random; //liczba potrzebna do losowan dzialan
 
 
         private GraphicsDeviceManager _graphics;
@@ -48,6 +50,7 @@ namespace ProjektJPWPPP
             IsMouseVisible = true;
             _gameState = 0;
             tlo = Color.CornflowerBlue;
+            _random = new Random();
 
             base.Initialize();
         }
@@ -55,7 +58,7 @@ namespace ProjektJPWPPP
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
+            _czyWalka = false;
 
 
 
@@ -120,7 +123,7 @@ namespace ProjektJPWPPP
             }
 
 
-            if (_gameState == 0)
+            if (_gameState == 0) //menu startowe
             {
                 if(startButton.IsPressed)
                 {
@@ -130,7 +133,7 @@ namespace ProjektJPWPPP
                     _gameState = 1;
                 }
             }
-            else if(_gameState == 1)
+            else if(_gameState == 1) //poziom trudnosci
             {
                 if (startButton.IsPressed)
                 {
@@ -149,9 +152,8 @@ namespace ProjektJPWPPP
                 }
                 
             }
-            else if(_gameState == 2)
+            else if(_gameState == 2) //walka
             {
-                _timerRunning = true;
                 startButton.setPosition(new Vector2(50, (_graphics.PreferredBackBufferHeight / 2) + 150));
                 startButton.setText("Atak");
                 button1.setPosition(new Vector2(50, (_graphics.PreferredBackBufferHeight / 2) + 250));
@@ -166,8 +168,48 @@ namespace ProjektJPWPPP
                     button1.setText("Zamknij program");
                     _gameState = 3;
                 }
+                else if(startButton.IsPressed)
+                {
+                    _czyWalka = true;
+                    number1=_random.Next(0, 50);
+                    number2 = _random.Next(0, 100-number1);
+                    wynikTextbox.setTargetNumber(number1 + number2);
+                    _akcja = true;
+                }
+                else if(button1.IsPressed)
+                {
+                    _czyWalka = true;
+                    number1 = _random.Next(0, 50);
+                    number2 = _random.Next(0, 100 - number1);
+                    wynikTextbox.setTargetNumber(number1 + number2);
+                    _akcja = false;
+                }
+
+                else if(_czyWalka)
+                {
+                    _timerRunning = true;
+                    if(keyboardState.IsKeyDown(Keys.Enter))
+                    {
+                        if (wynikTextbox.getIsValid())
+                        {
+                            if (_akcja) enemyLevel1.TakeDamage(20);
+                            else player.Heal(50);
+                        }
+                        else
+                        {
+
+                        }
+                        _timerRunning = false;
+                        wynikTextbox.setTargetNumber(99999999);
+                        wynikTextbox.Clear();
+                        _czyWalka = false;
+                        player.TakeDamage(10);
+                    }
+                    
+                    
+                }
             }
-            else if(_gameState == 3)
+            else if(_gameState == 3) //menu
             {
                 _timerRunning = false;
                 if (startButton.IsPressed)
@@ -221,7 +263,6 @@ namespace ProjektJPWPPP
                 _spriteBatch.DrawString(MessageFont, "Poziom 1 - dodawanie", new Vector2((_graphics.PreferredBackBufferWidth / 2) - 300, 40), Color.Black);
                 _spriteBatch.DrawString(MessageFont, "Zdrowie: "+player.getHealth(), new Vector2(50, (_graphics.PreferredBackBufferHeight / 2)+50), Color.Black);
                 _spriteBatch.DrawString(MessageFont, "Zdrowie: " + enemyLevel1.getHealth(), new Vector2(830, (_graphics.PreferredBackBufferHeight / 2) + 50), Color.Black);
-                _spriteBatch.DrawString(ButtonFont, "(Tu wyświetli się przykładowe zadanie)", new Vector2(830, (_graphics.PreferredBackBufferHeight / 2) + 150), Color.Black);
                 player.Draw(_spriteBatch);
                 enemyLevel1.Draw(_spriteBatch);
                 startButton.Draw(_spriteBatch);
@@ -232,6 +273,9 @@ namespace ProjektJPWPPP
                 wynikTextbox.Draw(_spriteBatch);
 
                 _spriteBatch.DrawString(MessageFont, $"Czas: {_timer:F2} sekund", new Vector2((_graphics.PreferredBackBufferWidth / 2) - 300, 900), Color.Black);
+
+                if(_czyWalka) _spriteBatch.DrawString(ButtonFont, $"{number1} + {number2} = {wynikTextbox.getTargetNumber()}", new Vector2(830, (_graphics.PreferredBackBufferHeight / 2) + 150), Color.Black);
+                    
 
             }
             else if (_gameState == 3)

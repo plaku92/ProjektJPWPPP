@@ -18,7 +18,13 @@ public class Textbox
     private bool isActive;
 
     public string Text => text.ToString();
-    public bool IsValid { get; private set; } = false;
+    public bool IsValid { get;  set; } = false;
+
+    public bool getIsValid()
+    {
+        return IsValid;
+    }
+    
 
     private int targetNumber;
 
@@ -47,6 +53,15 @@ public class Textbox
     public bool getisActive()
     {
         return isActive;
+    }
+
+    public void setTargetNumber(int targetNumber)
+    {
+        this.targetNumber = targetNumber;
+    }
+    public int getTargetNumber()
+    {
+        return targetNumber;
     }
     public void Update(KeyboardState keyboardState, KeyboardState previousKeyboardState)
     {
@@ -123,5 +138,11 @@ public class Textbox
     private bool IsNumericOrValid(char c)
     {
         return char.IsDigit(c); // Only allow numeric characters
+    }
+
+    public void Clear()
+    {
+        text.Clear();    // Clear the current text
+        IsValid = false; // Reset validation status
     }
 }
