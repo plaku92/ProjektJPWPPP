@@ -18,8 +18,8 @@ namespace ProjektJPWPPP
         SpriteFont ButtonFont, MessageFont;
         Button startButton, button1, button2;
         Player player;
-        Enemy enemyLevel1;
-        int _gameState, difficulty, number1, number2;
+        Enemy enemy;
+        int _gameState, difficulty, level, number1, number2;
         Textbox wynikTextbox;
         KeyboardState keyboardState = Keyboard.GetState();
         KeyboardState previousKeyboardState;
@@ -29,6 +29,22 @@ namespace ProjektJPWPPP
         private bool _timerRunning, _czyWalka, _akcja;
         private Random _random; //liczba potrzebna do losowan dzialan
 
+        //---poruszanie sie
+        private Texture2D characterTexture;
+        private Rectangle characterRectangle;
+
+        private Texture2D Door1Texture;
+        private Rectangle Door1Rectangle;
+        private Texture2D Door2Texture;
+        private Rectangle Door2Rectangle;
+        private Texture2D Door3Texture;
+        private Rectangle Door3Rectangle;
+        private Texture2D Door4Texture;
+        private Rectangle Door4Rectangle;
+
+        private Vector2 characterVelocity;
+        private float speed = 150f;
+        //---
 
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
@@ -60,11 +76,17 @@ namespace ProjektJPWPPP
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _czyWalka = false;
 
+            // Load character texture
+            characterTexture = Content.Load<Texture2D>("PlayerEnemy/gracz_small");
+            characterRectangle = new Rectangle((_graphics.PreferredBackBufferWidth / 2)-191, (_graphics.PreferredBackBufferHeight / 2)-182, 191, 182);
+
+            // Load obstacle texture
+            Door1Texture = Content.Load<Texture2D>("Doors/dodawanie");
+            Door1Rectangle = new Rectangle(200, 200, 100, 100);
 
 
 
-           
-            
+
             buttonTexture = Content.Load<Texture2D>("Controls/button"); 
             ButtonFont = Content.Load<SpriteFont>("Fonts/Button"); 
             MessageFont = Content.Load<SpriteFont>("Fonts/Message"); 
@@ -76,7 +98,7 @@ namespace ProjektJPWPPP
             player = new Player(playerTexture);
 
             enemyTexture= Content.Load<Texture2D>("PlayerEnemy/przeciwnik1_placeholder");
-            enemyLevel1= new Enemy(enemyTexture);
+            enemy= new Enemy(enemyTexture);
 
             wynikTextbox = new Textbox(GraphicsDevice, ButtonFont, new Rectangle(830, (_graphics.PreferredBackBufferHeight / 2) + 250, 200, 30), Color.White, Color.Black, 42, Color.Black); // Target number is 42
 
@@ -91,7 +113,34 @@ namespace ProjektJPWPPP
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            // Handle movement
+            KeyboardState keyboardState = Keyboard.GetState();
+            characterVelocity = Vector2.Zero;
 
+            if (keyboardState.IsKeyDown(Keys.W)) characterVelocity.Y -= 1;
+            if (keyboardState.IsKeyDown(Keys.S)) characterVelocity.Y += 1;
+            if (keyboardState.IsKeyDown(Keys.A)) characterVelocity.X -= 1;
+            if (keyboardState.IsKeyDown(Keys.D)) characterVelocity.X += 1;
+
+            // Normalize diagonal movement
+            if (characterVelocity.Length() > 1)
+                characterVelocity.Normalize();
+
+            // Apply speed and elapsed time
+            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            Vector2 moveAmount = characterVelocity * speed * deltaTime;
+
+            // Update character position
+            characterRectangle.X += (int)moveAmount.X;
+            characterRectangle.Y += (int)moveAmount.Y;
+
+            // Collision detection
+            if (characterRectangle.Intersects(Door1Rectangle))
+            {
+                level = 1;
+                _gameState = 2;
+            }
+            //------------------------------------------------------------------------------------------------------------
             // TODO: Add your update logic here
 
             currentMouseState = Mouse.GetState();
@@ -99,7 +148,7 @@ namespace ProjektJPWPPP
             button1.Update(currentMouseState, previousMouseState);
             button2.Update(currentMouseState, previousMouseState);
             player.Update(gameTime);
-            enemyLevel1.Update(gameTime);
+            enemy.Update(gameTime);
 
             previousKeyboardState = keyboardState;
             keyboardState = Keyboard.GetState();
@@ -130,7 +179,7 @@ namespace ProjektJPWPPP
                     startButton.setPosition(new Vector2((_graphics.PreferredBackBufferWidth / 2) - 81,256));
                     startButton.setText("Łatwy");
                     tlo = Color.Beige;
-                    _gameState = 1;
+                    _gameState = 4;
                 }
             }
             else if(_gameState == 1) //poziom trudnosci
@@ -171,18 +220,51 @@ namespace ProjektJPWPPP
                 else if(startButton.IsPressed)
                 {
                     _czyWalka = true;
-                    number1=_random.Next(0, 50);
-                    number2 = _random.Next(0, 100-number1);
-                    wynikTextbox.setTargetNumber(number1 + number2);
-                    _akcja = true;
+                    if(level==1)
+                    {
+                        if (difficulty == 1)
+                        {
+                            number1 = _random.Next(0, 100);
+                            number2 = _random.Next(0, 100 - number1);
+                        }
+                        else if (difficulty == 2)
+                        {
+                            number1 = _random.Next(0, 1000);
+                            number2 = _random.Next(0, 1000 - number1);
+                        }
+                        else
+                        {
+                            number1 = _random.Next(0, 20);
+                            number2 = _random.Next(0, 20 - number1);
+                        }
+                        wynikTextbox.setTargetNumber(number1 + number2);
+                        _akcja = true;
+                    }
+                    
                 }
                 else if(button1.IsPressed)
                 {
                     _czyWalka = true;
-                    number1 = _random.Next(0, 50);
-                    number2 = _random.Next(0, 100 - number1);
-                    wynikTextbox.setTargetNumber(number1 + number2);
-                    _akcja = false;
+                    if (level == 1)
+                    {
+                        if (difficulty == 1)
+                        {
+                            number1 = _random.Next(0, 100);
+                            number2 = _random.Next(0, 100 - number1);
+                        }
+                        else if (difficulty == 2)
+                        {
+                            number1 = _random.Next(0, 1000);
+                            number2 = _random.Next(0, 1000 - number1);
+                        }
+                        else
+                        {
+                            number1 = _random.Next(0, 20);
+                            number2 = _random.Next(0, 20 - number1);
+                        }
+                        wynikTextbox.setTargetNumber(number1 + number2);
+                        _akcja = false;
+                    }
                 }
 
                 else if(_czyWalka)
@@ -192,7 +274,7 @@ namespace ProjektJPWPPP
                     {
                         if (wynikTextbox.getIsValid())
                         {
-                            if (_akcja) enemyLevel1.TakeDamage(20);
+                            if (_akcja) enemy.TakeDamage(20);
                             else player.Heal(50);
                         }
                         else
@@ -207,6 +289,11 @@ namespace ProjektJPWPPP
                     }
                     
                     
+                }
+
+                if(enemy.getHealth()==0)
+                {
+                    level=level+1;
                 }
             }
             else if(_gameState == 3) //menu
@@ -260,11 +347,14 @@ namespace ProjektJPWPPP
             }
             else if (_gameState == 2)
             {
-                _spriteBatch.DrawString(MessageFont, "Poziom 1 - dodawanie", new Vector2((_graphics.PreferredBackBufferWidth / 2) - 300, 40), Color.Black);
+                if (level==1) _spriteBatch.DrawString(MessageFont, "Poziom 1 - dodawanie", new Vector2((_graphics.PreferredBackBufferWidth / 2) - 300, 40), Color.Black);
+                else if (level==2) _spriteBatch.DrawString(MessageFont, "Poziom 2 - odejmowanie", new Vector2((_graphics.PreferredBackBufferWidth / 2) - 300, 40), Color.Black);
+                else if (level == 3) _spriteBatch.DrawString(MessageFont, "Poziom 3 - mnożenie", new Vector2((_graphics.PreferredBackBufferWidth / 2) - 300, 40), Color.Black);
+                else if (level == 4) _spriteBatch.DrawString(MessageFont, "Poziom 4 - dzielenie", new Vector2((_graphics.PreferredBackBufferWidth / 2) - 300, 40), Color.Black);
                 _spriteBatch.DrawString(MessageFont, "Zdrowie: "+player.getHealth(), new Vector2(50, (_graphics.PreferredBackBufferHeight / 2)+50), Color.Black);
-                _spriteBatch.DrawString(MessageFont, "Zdrowie: " + enemyLevel1.getHealth(), new Vector2(830, (_graphics.PreferredBackBufferHeight / 2) + 50), Color.Black);
+                _spriteBatch.DrawString(MessageFont, "Zdrowie: " + enemy.getHealth(), new Vector2(830, (_graphics.PreferredBackBufferHeight / 2) + 50), Color.Black);
                 player.Draw(_spriteBatch);
-                enemyLevel1.Draw(_spriteBatch);
+                enemy.Draw(_spriteBatch);
                 startButton.Draw(_spriteBatch);
                 button1.Draw(_spriteBatch );
                 button2.Draw(_spriteBatch);
@@ -272,7 +362,7 @@ namespace ProjektJPWPPP
                 
                 wynikTextbox.Draw(_spriteBatch);
 
-                _spriteBatch.DrawString(MessageFont, $"Czas: {_timer:F2} sekund", new Vector2((_graphics.PreferredBackBufferWidth / 2) - 300, 900), Color.Black);
+                _spriteBatch.DrawString(MessageFont, $"Czas: {_timer:F2} sekund", new Vector2((_graphics.PreferredBackBufferWidth / 2) - 600, 900), Color.Black);
 
                 if(_czyWalka) _spriteBatch.DrawString(ButtonFont, $"{number1} + {number2} = {wynikTextbox.getTargetNumber()}", new Vector2(830, (_graphics.PreferredBackBufferHeight / 2) + 150), Color.Black);
                     
@@ -283,12 +373,19 @@ namespace ProjektJPWPPP
                 _spriteBatch.DrawString(MessageFont, "Menu", new Vector2((_graphics.PreferredBackBufferWidth / 2) - 100, 40), Color.Black);
                 startButton.Draw(_spriteBatch);
                 button1.Draw(_spriteBatch);
-                button2.Draw(_spriteBatch);
+                
 
 
 
             }
+            else if (_gameState == 4)
+            {
+                // Draw character
+                _spriteBatch.Draw(characterTexture, characterRectangle, Color.White);
 
+                // Draw obstacle
+                _spriteBatch.Draw(Door1Texture, Door1Rectangle, Color.Red);
+            }
 
 
             _spriteBatch.End();
