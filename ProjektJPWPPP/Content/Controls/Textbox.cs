@@ -38,15 +38,15 @@ public class Textbox
         this.textColor = textColor;
         this.targetNumber = targetNumber;
 
-        // Create background texture
+       
         backgroundTexture = new Texture2D(graphicsDevice, 1, 1);
         backgroundTexture.SetData(new[] { Color.White });
 
-        // Create border texture
+       
         borderTexture = new Texture2D(graphicsDevice, 1, 1);
         borderTexture.SetData(new[] { Color.White });
 
-        // Initialize text and state
+        
         text = new StringBuilder();
         isActive = false;
     }
@@ -71,20 +71,20 @@ public class Textbox
             {
                 if (previousKeyboardState.IsKeyUp(key))
                 {
-                    // Handle backspace
+                    // Usuwanie cyfr za pomoca backspace
                     if (key == Keys.Back && text.Length > 0)
                     {
-                        text.Length--; // Remove last character
+                        text.Length--; 
                     }
-                    // Handle Enter to validate input
+                    // Sprawdzenie poprawności wpisanej liczby
                     else if (key == Keys.Enter)
                     {
                         ValidateInput();
-                        isActive = false; // Deactivate after validation
+                        isActive = false; 
                     }
                     else
                     {
-                        // Add character if it's numeric or valid
+                        // Dodanie cyfry do textboxa
                         char c = ConvertKeyToChar(key, keyboardState.IsKeyDown(Keys.LeftShift) || keyboardState.IsKeyDown(Keys.RightShift));
                         if (IsNumericOrValid(c)) text.Append(c);
                     }
@@ -95,14 +95,14 @@ public class Textbox
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        // Draw border
+        
         Rectangle borderRectangle = new Rectangle(bounds.X - borderWidth, bounds.Y - borderWidth, bounds.Width + borderWidth * 2, bounds.Height + borderWidth * 2);
         spriteBatch.Draw(borderTexture, borderRectangle, borderColor);
 
-        // Draw background
+       
         spriteBatch.Draw(backgroundTexture, bounds, backgroundColor);
 
-        // Draw the text inside the textbox
+        
         spriteBatch.DrawString(font, text.ToString(), new Vector2(bounds.X + 5, bounds.Y + 5), textColor);
     }
 
@@ -113,17 +113,17 @@ public class Textbox
     {
         if (int.TryParse(text.ToString(), out int enteredNumber))
         {
-            IsValid = enteredNumber == targetNumber; // Check if the number matches the target
+            IsValid = enteredNumber == targetNumber; // Sprawdzenie czy wpisana liczba = wynik dzialania
         }
         else
         {
-            IsValid = false; // Invalid input
+            IsValid = false; 
         }
     }
 
     private char ConvertKeyToChar(Keys key, bool shift)
     {
-        // Map number keys
+        
         if (key >= Keys.D0 && key <= Keys.D9)
         {
             return (char)(key - Keys.D0 + '0');
@@ -132,17 +132,17 @@ public class Textbox
         {
             return (char)(key - Keys.NumPad0 + '0');
         }
-        return '\0'; // Unsupported characters
+        return '\0';
     }
 
     private bool IsNumericOrValid(char c)
     {
-        return char.IsDigit(c); // Only allow numeric characters
+        return char.IsDigit(c);
     }
 
     public void Clear()
     {
-        text.Clear();    // Clear the current text
-        IsValid = false; // Reset validation status
+        text.Clear(); //funkcja klasy StringBuilder
+        IsValid = false; 
     }
 }

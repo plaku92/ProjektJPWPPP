@@ -37,10 +37,10 @@ public class Button
         bounds = new Rectangle((int)position.X, (int)position.Y, texture.Width, texture.Height);
         Point mousePosition = mouseState.Position;
 
-        // Check if the mouse is over the button
+        // Sprawdz czy kursor jest nad przyciskiem
         IsHovered = bounds.Contains(mousePosition);
 
-        // Check for button click
+      
         if (IsHovered && mouseState.LeftButton == ButtonState.Pressed && previousMouseState.LeftButton == ButtonState.Released)
         {
             IsPressed = true;
@@ -53,10 +53,10 @@ public class Button
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        // Draw the button texture
+       
         spriteBatch.Draw(texture, position, IsHovered ? Color.Gray : Color.White);
 
-        // Draw the text, centered on the button
+       
         Vector2 textSize = font.MeasureString(text);
         Vector2 textPosition = position + new Vector2((bounds.Width - textSize.X) / 2, (bounds.Height - textSize.Y) / 2);
         spriteBatch.DrawString(font, text, textPosition, color);
