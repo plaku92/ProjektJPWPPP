@@ -428,6 +428,7 @@ namespace ProjektJPWPPP
             {
                 _spriteBatch.Draw(backgroundTexture, new Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height), Color.White);
                 _spriteBatch.DrawString(MessageFont, "Pokonaj matematykę!", new Vector2((_graphics.PreferredBackBufferWidth / 2) - 280, 40), Color.Black);
+                _spriteBatch.DrawString(MessageFont, "Patryk Plak 193085", new Vector2((_graphics.PreferredBackBufferWidth / 2) - 260, 180), Color.Black);
                 startButton.Draw(_spriteBatch);
 
             }
