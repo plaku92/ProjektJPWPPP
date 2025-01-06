@@ -459,10 +459,10 @@ namespace ProjektJPWPPP
 
                 if (_czyWalka)
                 {
-                    if (level == 1) _spriteBatch.DrawString(MessageFont, $"{number1} + {number2} = {wynikTextbox.getTargetNumber()}", new Vector2(830, (_graphics.PreferredBackBufferHeight / 2) + 150), Color.Black);
-                    else if (level == 2) _spriteBatch.DrawString(MessageFont, $"{number1} - {number2} = {wynikTextbox.getTargetNumber()}", new Vector2(830, (_graphics.PreferredBackBufferHeight / 2) + 150), Color.Black);
-                    else if (level == 3) _spriteBatch.DrawString(MessageFont, $"{number1} * {number2} = {wynikTextbox.getTargetNumber()}", new Vector2(830, (_graphics.PreferredBackBufferHeight / 2) + 150), Color.Black);
-                    else if (level == 4) _spriteBatch.DrawString(MessageFont, $"{number1} / {number2} = {wynikTextbox.getTargetNumber()}", new Vector2(830, (_graphics.PreferredBackBufferHeight / 2) + 150), Color.Black);
+                    if (level == 1) _spriteBatch.DrawString(MessageFont, $"{number1} + {number2} ", new Vector2(830, (_graphics.PreferredBackBufferHeight / 2) + 150), Color.Black);
+                    else if (level == 2) _spriteBatch.DrawString(MessageFont, $"{number1} - {number2} ", new Vector2(830, (_graphics.PreferredBackBufferHeight / 2) + 150), Color.Black);
+                    else if (level == 3) _spriteBatch.DrawString(MessageFont, $"{number1} * {number2} ", new Vector2(830, (_graphics.PreferredBackBufferHeight / 2) + 150), Color.Black);
+                    else if (level == 4) _spriteBatch.DrawString(MessageFont, $"{number1} / {number2} ", new Vector2(830, (_graphics.PreferredBackBufferHeight / 2) + 150), Color.Black);
                 }
             }
             else if (_gameState == 3)
